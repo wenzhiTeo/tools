@@ -29,8 +29,13 @@ export const JsonViewer = ({ data, ...otherProps }: Props) => {
 };
 
 export default function TabTwoScreen() {
-  const [raw, setRaw] = useState("");
-  const [jsonData, setJsonData] = useState<any>(null);
+  const exampleRawJson =
+    '{"firstName":"John","lastName":"Doe","age":30,"isStudent":false,"courses":[{"title":"History 101","credits":3},{"title":"Math 202","credits":4}],"address":{"street":"123 Main St","city":"Anytown","zipCode":"12345"}}';
+
+  const [raw, setRaw] = useState(
+    JSON.stringify(JSON.parse(exampleRawJson), null, 4)
+  );
+  const [jsonData, setJsonData] = useState<any>(JSON.parse(exampleRawJson));
   const [error, setError] = useState("");
 
   const handleChange = (text: string) => {

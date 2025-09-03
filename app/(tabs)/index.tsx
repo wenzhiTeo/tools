@@ -1,75 +1,158 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  ScrollView,
+  Switch,
+  StyleSheet,
+} from "react-native";
 
 export default function HomeScreen() {
+  const [curlInput, setCurlInput] = useState(
+    `curl "https://example.com/api/data" -H "Authorization: Bearer token123" -H "User-Agent: CustomAgent" -d "param=value"`
+  );
+  const [urlReplaceFrom, setUrlReplaceFrom] = useState(
+    "https://example.com/api/data"
+  );
+  const [urlReplaceTo, setUrlReplaceTo] = useState("http://127.0.0.1:6000");
+  const [disabledHeaders, setDisabledHeaders] = useState<
+    Record<string, boolean>
+  >({
+    Authorization: false,
+    "User-Agent": false,
+  });
+  const [output, setOutput] = useState("");
+
+  const processCurl = () => {
+    let modified = curlInput;
+
+    // Replace URL
+    if (urlReplaceFrom && urlReplaceTo) {
+      modified = modified.replace(urlReplaceFrom, urlReplaceTo);
+    }
+
+    // Remove disabled headers
+    Object.entries(disabledHeaders).forEach(([header, disabled]) => {
+      if (disabled) {
+        const regex = new RegExp(`-H\\s+["']?${header}\\s*:[^"']*["']?`, "i");
+        modified = modified.replace(regex, "");
+      }
+    });
+
+    setOutput(modified.trim());
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView style={styles.container}>
+      <Text style={styles.sectionTitle}>Input Curl Command</Text>
+      <TextInput
+        value={curlInput}
+        onChangeText={setCurlInput}
+        multiline
+        style={styles.textArea}
+      />
+
+      <Text style={styles.sectionTitle}>URL Replacement</Text>
+      <TextInput
+        placeholder="Replace from..."
+        value={urlReplaceFrom}
+        onChangeText={setUrlReplaceFrom}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Replace to..."
+        value={urlReplaceTo}
+        onChangeText={setUrlReplaceTo}
+        style={styles.input}
+      />
+
+      <Text style={styles.sectionTitle}>Disable Headers</Text>
+      {Object.keys(disabledHeaders).map((header) => (
+        <View key={header} style={styles.switchRow}>
+          <Switch
+            value={disabledHeaders[header]}
+            onValueChange={(val) =>
+              setDisabledHeaders((prev) => ({ ...prev, [header]: val }))
+            }
+          />
+          <Text style={styles.switchLabel}>{header}</Text>
+        </View>
+      ))}
+
+      <View style={styles.buttonWrapper}>
+        <Button title="Process Curl" onPress={processCurl} color="#4CAF50" />
+      </View>
+
+      {output ? (
+        <View style={styles.outputBox}>
+          <Text style={styles.outputTitle}>Modified Curl</Text>
+          <Text style={styles.outputText}>{output}</Text>
+        </View>
+      ) : null}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    padding: 16,
+    backgroundColor: "#f9f9f9",
   },
-  stepContainer: {
-    gap: 8,
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    marginTop: 16,
+    color: "#333",
+  },
+  textArea: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 120,
+    backgroundColor: "#fff",
+    textAlignVertical: "top",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+  },
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  switchLabel: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: "#444",
+  },
+  buttonWrapper: {
+    marginTop: 16,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  outputBox: {
+    marginTop: 24,
+    backgroundColor: "#1e1e1e",
+    padding: 12,
+    borderRadius: 8,
+  },
+  outputTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    marginBottom: 8,
+  },
+  outputText: {
+    color: "#f1f1f1",
+    fontFamily: "monospace",
   },
 });
