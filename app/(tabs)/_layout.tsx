@@ -45,12 +45,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="curl_executor"
-        options={{
-          title: "CURL executor",
-        }}
-      />
     </Tabs>
   );
 }
