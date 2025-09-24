@@ -1,12 +1,13 @@
 import {
   Platform,
-  SafeAreaView,
   TextInput,
   Text,
   ScrollView,
   StyleSheet,
 } from "react-native";
 import React, { Suspense, useState } from "react";
+
+import { GlobalStyles } from "@styles/global";
 
 const LazyReactJsonView = React.lazy(() => import("react-json-view-custom"));
 
@@ -88,7 +89,8 @@ export default function JsonHelper() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={GlobalStyles.container}>
+      <Text style={GlobalStyles.sectionTitle}>Json Helper</Text>
       <TextInput
         style={styles.input}
         placeholder="Paste JSON here"
@@ -120,16 +122,11 @@ export default function JsonHelper() {
           <JsonViewer data={clickedContent} />
         </div>
       </div>
-    </SafeAreaView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#f0f2f5",
-  },
   resultContainer: {
     display: "flex",
     flexDirection: "row", // 左右排版
@@ -138,7 +135,7 @@ const styles = StyleSheet.create({
   },
   leftPane: {
     ...((Platform.OS === "web" ? { resize: "horizontal" } : {}) as any),
-    minWidth: "50%",
+    minWidth: "30%",
     maxWidth: "70%",
 
     borderWidth: 1,
