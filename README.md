@@ -6,7 +6,10 @@ This project is including my common used tools (some of them only available in d
 - CURL replacement tool
 - Json formatter and extract tool
 
-```eas deploy```
+```
+npx expo export --platform web
+eas deploy
+```
 
 ## Get started
 
