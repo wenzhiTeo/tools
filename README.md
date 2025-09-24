@@ -6,6 +6,8 @@ This project is including my common used tools (some of them only available in d
 - CURL replacement tool
 - Json formatter and extract tool
 
+```eas deploy```
+
 ## Get started
 
 1. Install dependencies
