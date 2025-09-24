@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row", // 左右排版
     width: "100%",
-    height: "100%",
+    maxHeight: 650,
   },
   leftPane: {
     ...((Platform.OS === "web" ? { resize: "horizontal" } : {}) as any),
@@ -163,6 +163,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     backgroundColor: "#fff",
     margin: 24,
+
+    textAlignVertical: "top", // keeps text at top in Android
+    overflow: "scroll",
   },
   input: {
     borderWidth: 1,
