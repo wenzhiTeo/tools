@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { Suspense, useState } from "react";
 
-import { GlobalStyles } from "@styles/global";
+import { GlobalStyles, GlobalWebStyles } from "@styles/global";
 
 const LazyReactJsonView = React.lazy(() => import("react-json-view-custom"));
 
@@ -88,9 +88,12 @@ export default function JsonHelper() {
     }, 0);
   };
 
+  const commonStyleSheet =
+    Platform.OS === "web" ? GlobalWebStyles : GlobalStyles;
+
   return (
-    <ScrollView style={GlobalStyles.container}>
-      <Text style={GlobalStyles.sectionTitle}>Json Helper</Text>
+    <ScrollView style={commonStyleSheet.container}>
+      <Text style={commonStyleSheet.sectionTitle}>Json Helper</Text>
       <TextInput
         style={styles.input}
         placeholder="Paste JSON here"
@@ -104,6 +107,7 @@ export default function JsonHelper() {
           <div style={styles.errorText}>{error}</div>
         ) : (
           <div style={styles.leftPane}>
+            <h3>Formatted Result</h3>
             <JsonViewer
               data={jsonData}
               onToggleCollapsed={(props) => {
@@ -119,6 +123,7 @@ export default function JsonHelper() {
         )}
 
         <div style={styles.rightPane}>
+          <h3>Extract From Selection</h3>
           <JsonViewer data={clickedContent} />
         </div>
       </div>
@@ -132,6 +137,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", // 左右排版
     width: "100%",
     maxHeight: 650,
+    marginTop: 12,
   },
   leftPane: {
     ...((Platform.OS === "web" ? { resize: "horizontal" } : {}) as any),
@@ -144,9 +150,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     minHeight: 120,
     fontSize: 14,
-    marginBottom: 12,
     backgroundColor: "#fff",
-    margin: 24,
 
     textAlignVertical: "top", // keeps text at top in Android
     overflow: "scroll",
@@ -162,7 +166,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 12,
     backgroundColor: "#fff",
-    margin: 24,
+    marginLeft: 12,
 
     textAlignVertical: "top", // keeps text at top in Android
     overflow: "scroll",
@@ -176,7 +180,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 12,
     backgroundColor: "#fff",
-    margin: 24,
 
     textAlignVertical: "top", // keeps text at top in Android
     overflow: "scroll",

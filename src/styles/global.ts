@@ -14,3 +14,19 @@ export const GlobalStyles = StyleSheet.create({
     color: "#333",
   },
 });
+
+export const GlobalWebStyles = StyleSheet.create({
+  container: {
+    padding: 42,
+    paddingTop: 20,
+    backgroundColor: "#f9f9f9",
+  },
+
+  sectionTitle: {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
+  },
+});

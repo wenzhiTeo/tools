@@ -9,9 +9,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Platform,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { GlobalStyles } from "@styles/global";
+import { GlobalStyles, GlobalWebStyles } from "@styles/global";
 
 export default function CURLHelper() {
   const [curlInput, setCurlInput] = useState(
@@ -53,8 +54,11 @@ export default function CURLHelper() {
     Alert.alert("Copied!", "Output has been copied to clipboard.");
   };
 
+  const commonStyleSheet =
+    Platform.OS === "web" ? GlobalWebStyles : GlobalStyles;
+
   return (
-    <ScrollView style={GlobalStyles.container}>
+    <ScrollView style={commonStyleSheet.container}>
       <Text style={GlobalStyles.sectionTitle}>Input Curl Command</Text>
       <TextInput
         value={curlInput}
@@ -63,7 +67,7 @@ export default function CURLHelper() {
         style={styles.textArea}
       />
 
-      <Text style={GlobalStyles.sectionTitle}>URL Replacement</Text>
+      <Text style={commonStyleSheet.sectionTitle}>URL Replacement</Text>
       <TextInput
         placeholder="Replace from..."
         value={urlReplaceFrom}
