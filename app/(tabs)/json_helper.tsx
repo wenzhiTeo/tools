@@ -4,8 +4,10 @@ import {
   Text,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 
 import { GlobalStyles, GlobalWebStyles } from "@styles/global";
 
@@ -38,7 +40,54 @@ export default function JsonHelper() {
   );
   const [jsonData, setJsonData] = useState<any>(JSON.parse(exampleRawJson));
   const [error, setError] = useState("");
-  const [clickedContent, setClickedContent] = useState<any>({});
+  const [firstExtractContent, setFirstExtractContent] = useState<any>({});
+  const [secondExtractContent, setSecondExtractContent] = useState<any>({});
+
+  const [availableKeys, setAvailableKeys] = useState<string[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+
+  const toggleKey = (key: string) => {
+    setSelectedKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  };
+
+  const getCustomJsonArray = (
+    arrOfObjects: Record<string, any>[],
+    selectedKeys: string[]
+  ) => {
+    if (!Array.isArray(arrOfObjects)) return null;
+
+    const newArray: Map<string, any>[] = [];
+
+    for (const obj of arrOfObjects) {
+      const resultDict = new Map<string, any>();
+
+      for (const key of selectedKeys) {
+        if (key in obj) {
+          resultDict.set(key, obj[key]);
+        }
+      }
+
+      newArray.push(resultDict);
+    }
+
+    // convert to json map
+    function mapToObject(map: Map<string, any>) {
+      return Object.fromEntries(map);
+    }
+    const newArrOfObjects = newArray.map(mapToObject);
+    return JSON.parse(JSON.stringify(newArrOfObjects));
+  };
+
+  const checkIsArrayOfObjects = (obj: any) => {
+    return (
+      Array.isArray(obj) &&
+      obj.length > 0 &&
+      typeof obj[0] === "object" &&
+      obj[0] !== null
+    );
+  };
 
   const handleChange = (text: string) => {
     setRaw(text);
@@ -80,13 +129,41 @@ export default function JsonHelper() {
           typeof structuredClone === "function"
             ? structuredClone(src)
             : JSON.parse(JSON.stringify(src));
-        setClickedContent(cloned);
+
+        const checkIsObjects =
+          !Array.isArray(cloned) && typeof cloned === "object";
+
+        if (checkIsArrayOfObjects(cloned) || checkIsObjects) {
+          // array of objects logic
+          const sampleObj = checkIsObjects ? cloned : cloned[0];
+          const keys = Object.keys(sampleObj);
+
+          setAvailableKeys(keys);
+          setSelectedKeys([keys[0], keys[1], keys[2]]);
+
+          const arrOfObjs = getCustomJsonArray(
+            checkIsObjects ? [cloned] : cloned,
+            keys
+          );
+
+          setFirstExtractContent(JSON.parse(JSON.stringify(arrOfObjs)));
+        } else {
+          // common logic
+          setFirstExtractContent(cloned);
+          setAvailableKeys([]);
+          setSelectedKeys([]);
+        }
       } catch (e) {
         console.error("clone clicked node failed", e);
-        setClickedContent(null);
+        setFirstExtractContent(null);
       }
     }, 0);
   };
+
+  useEffect(() => {
+    const arrOfObjs = getCustomJsonArray(firstExtractContent, selectedKeys);
+    setSecondExtractContent(JSON.parse(JSON.stringify(arrOfObjs)));
+  }, [firstExtractContent, selectedKeys]);
 
   const commonStyleSheet =
     Platform.OS === "web" ? GlobalWebStyles : GlobalStyles;
@@ -123,8 +200,41 @@ export default function JsonHelper() {
         )}
 
         <div style={styles.rightPane}>
-          <h3>Extract From Selection</h3>
-          <JsonViewer data={clickedContent} />
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 16, marginBottom: 10 }}>Choose Keys:</Text>
+
+            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+              {availableKeys.map((key) => {
+                const isSelected = selectedKeys.includes(key);
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    onPress={() => toggleKey(key)}
+                    style={{
+                      paddingVertical: 8,
+                      paddingHorizontal: 12,
+                      margin: 5,
+                      borderRadius: 20,
+                      backgroundColor: isSelected ? "#4CAF50" : "#ddd",
+                    }}
+                  >
+                    <Text style={{ color: isSelected ? "white" : "black" }}>
+                      {key}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <Text style={{ fontSize: 16, marginBottom: 20, marginTop: 10 }}>
+              Selected: {selectedKeys.join(", ") || "None"}
+            </Text>
+          </View>
+          <JsonViewer
+            data={
+              secondExtractContent ? secondExtractContent : firstExtractContent
+            }
+          />
         </div>
       </div>
     </ScrollView>
@@ -148,7 +258,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     padding: 12,
     borderRadius: 10,
-    minHeight: 120,
+    height: 500,
     fontSize: 14,
     backgroundColor: "#fff",
 
@@ -162,7 +272,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     padding: 12,
     borderRadius: 10,
-    minHeight: 120,
+    height: 500,
     fontSize: 14,
     marginBottom: 12,
     backgroundColor: "#fff",
