@@ -10,6 +10,7 @@ import {
 import React, { Suspense, useEffect, useState } from "react";
 
 import { GlobalStyles, GlobalWebStyles } from "@styles/global";
+import { OrderControl } from "@/components/json_helper/orderControl";
 
 const LazyReactJsonView = React.lazy(() => import("react-json-view-custom"));
 
@@ -45,7 +46,6 @@ export default function JsonHelper() {
 
   const [availableKeys, setAvailableKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-
   const toggleKey = (key: string) => {
     setSelectedKeys((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
@@ -179,12 +179,12 @@ export default function JsonHelper() {
         multiline
       />
 
+      <Text style={commonStyleSheet.sectionTitle}>Formatted Result</Text>
       <div style={styles.resultContainer}>
         {error ? (
           <div style={styles.errorText}>{error}</div>
         ) : (
           <div style={styles.leftPane}>
-            <h3>Formatted Result</h3>
             <JsonViewer
               data={jsonData}
               onToggleCollapsed={(props) => {
@@ -200,7 +200,7 @@ export default function JsonHelper() {
         )}
 
         <div style={styles.rightPane}>
-          <View style={{ marginBottom: 20 }}>
+          <View style={{ ...styles.subPane, marginBottom: 20 }}>
             <Text style={{ fontSize: 16, marginBottom: 10 }}>Choose Keys:</Text>
 
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
@@ -230,6 +230,15 @@ export default function JsonHelper() {
               Selected: {selectedKeys.join(", ") || "None"}
             </Text>
           </View>
+
+          <OrderControl
+            availableKeys={availableKeys}
+            data={
+              secondExtractContent ? secondExtractContent : firstExtractContent
+            }
+            onOrdered={(newData) => setSecondExtractContent(newData)}
+          />
+
           <JsonViewer
             data={
               secondExtractContent ? secondExtractContent : firstExtractContent
@@ -246,7 +255,6 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row", // 左右排版
     width: "100%",
-    maxHeight: 650,
     marginTop: 12,
   },
   leftPane: {
@@ -258,7 +266,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     padding: 12,
     borderRadius: 10,
-    height: 500,
+    minHeight: 500,
     fontSize: 14,
     backgroundColor: "#fff",
 
@@ -269,18 +277,25 @@ const styles = StyleSheet.create({
     flex: 1, // 自适应剩余空间
 
     borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 12,
     borderRadius: 10,
-    height: 500,
+    minHeight: 500,
     fontSize: 14,
-    marginBottom: 12,
-    backgroundColor: "#fff",
     marginLeft: 12,
+    backgroundColor: "#fff",
+    padding: 12,
 
     textAlignVertical: "top", // keeps text at top in Android
     overflow: "scroll",
   },
+
+  subPane: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 10,
+  },
+
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
