@@ -7,12 +7,29 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { Suspense, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 
 import { GlobalStyles, GlobalWebStyles } from "@styles/global";
 import { OrderControl } from "@/components/json_helper/orderControl";
 
 const LazyReactJsonView = React.lazy(() => import("react-json-view-custom"));
+
+function useDebouncedCallback<T extends (...args: any[]) => void>(
+  cb: T,
+  wait = 300
+) {
+  const timer = useRef<number | null>(null);
+  return (...args: Parameters<T>) => {
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => cb(...args), wait);
+  };
+}
 
 type Props = {
   data: any;
@@ -52,33 +69,23 @@ export default function JsonHelper() {
     );
   };
 
-  const getCustomJsonArray = (
-    arrOfObjects: Record<string, any>[],
-    selectedKeys: string[]
-  ) => {
-    if (!Array.isArray(arrOfObjects)) return null;
-
-    const newArray: Map<string, any>[] = [];
-
-    for (const obj of arrOfObjects) {
-      const resultDict = new Map<string, any>();
-
-      for (const key of selectedKeys) {
-        if (key in obj) {
-          resultDict.set(key, obj[key]);
-        }
+  const getCustomJsonArray = useCallback(
+    (arrOfObjects: Record<string, any>[], selectedKeys: string[]) => {
+      if (!Array.isArray(arrOfObjects)) return null;
+      if (!selectedKeys || selectedKeys.length === 0) {
+        // return original shallow-cloned array to avoid mutation
+        return arrOfObjects.map((o) => ({ ...o }));
       }
-
-      newArray.push(resultDict);
-    }
-
-    // convert to json map
-    function mapToObject(map: Map<string, any>) {
-      return Object.fromEntries(map);
-    }
-    const newArrOfObjects = newArray.map(mapToObject);
-    return JSON.parse(JSON.stringify(newArrOfObjects));
-  };
+      return arrOfObjects.map((obj) => {
+        const out: Record<string, any> = {};
+        for (const key of selectedKeys) {
+          if (key in obj) out[key] = obj[key];
+        }
+        return out;
+      });
+    },
+    []
+  );
 
   const checkIsArrayOfObjects = (obj: any) => {
     return (
@@ -89,17 +96,20 @@ export default function JsonHelper() {
     );
   };
 
-  const handleChange = (text: string) => {
-    setRaw(text);
-
+  const debouncedHandleChange = useDebouncedCallback((text: string) => {
     try {
       const obj = JSON.parse(text);
       setJsonData(obj);
       setError("");
-    } catch (e) {
+    } catch (e: any) {
       setJsonData(null);
-      setError("❌ Invalid JSON");
+      setError("❌ Invalid JSON: " + (e.message || "parse error"));
     }
+  }, 350);
+
+  const handleChange = (text: string) => {
+    setRaw(text);
+    debouncedHandleChange(text);
   };
 
   const handleClickContent = (src: any) => {
@@ -136,10 +146,12 @@ export default function JsonHelper() {
         if (checkIsArrayOfObjects(cloned) || checkIsObjects) {
           // array of objects logic
           const sampleObj = checkIsObjects ? cloned : cloned[0];
-          const keys = Object.keys(sampleObj);
 
+          const keys = Object.keys(sampleObj || {});
+          // only keep up to 3 and filter falsy
+          const defaultSelection = keys.slice(0, 3);
           setAvailableKeys(keys);
-          setSelectedKeys([keys[0], keys[1], keys[2]]);
+          setSelectedKeys(defaultSelection);
 
           const arrOfObjs = getCustomJsonArray(
             checkIsObjects ? [cloned] : cloned,
@@ -161,9 +173,14 @@ export default function JsonHelper() {
   };
 
   useEffect(() => {
-    const arrOfObjs = getCustomJsonArray(firstExtractContent, selectedKeys);
-    setSecondExtractContent(JSON.parse(JSON.stringify(arrOfObjs)));
-  }, [firstExtractContent, selectedKeys]);
+    try {
+      const arr = getCustomJsonArray(firstExtractContent, selectedKeys);
+      setSecondExtractContent(arr);
+    } catch (e) {
+      console.error("build second extract failed", e);
+      setSecondExtractContent(null);
+    }
+  }, [firstExtractContent, selectedKeys, getCustomJsonArray]);
 
   const commonStyleSheet =
     Platform.OS === "web" ? GlobalWebStyles : GlobalStyles;
