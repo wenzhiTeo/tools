@@ -11,7 +11,7 @@ import {
   Easing,
   StyleSheet,
   Alert,
-  Platform,
+  useWindowDimensions,
 } from "react-native";
 import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -145,15 +145,6 @@ function shuffle<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-function pickRandomRomajiExcept(
-  list: Kana[],
-  except: string,
-  count: number
-): string[] {
-  const pool = list.map((k) => k.romaji).filter((r) => r !== except);
-  return shuffle(pool).slice(0, count);
-}
-
 // --- App -------------------------------------------------------------------
 export default function App(): React.JSX.Element {
   const [script, setScript] = useState<ScriptName>("hiragana");
@@ -161,6 +152,14 @@ export default function App(): React.JSX.Element {
   const [selected, setSelected] = useState<Kana | null>(null);
   const [progress, setProgress] = useState<ProgressStore>({});
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  // 响应式布局
+  const { width: screenWidth } = useWindowDimensions();
+  const isWideScreen = screenWidth > 768;
+  // 手机端固定4列，电脑端根据宽度动态调整
+  const numColumns = isWideScreen 
+    ? Math.min(Math.floor(screenWidth / 120), 10) 
+    : 4;
 
   // flip animation for card
   const flipAnim = useRef(new Animated.Value(0)).current;
@@ -410,21 +409,41 @@ export default function App(): React.JSX.Element {
 
   // --- render helpers -----------------------------------------------------
   function renderGrid(): React.JSX.Element {
+    // 手机端固定4列，计算合适的卡片尺寸
+    const mobileTileSize = Math.floor((screenWidth - 24 - 3 * 10) / 4); // 24 padding, 3 gaps of 10px
+    const tileSize = isWideScreen ? 100 : mobileTileSize;
+    
     return (
       <FlatList
         data={KANA_SET}
         keyExtractor={(item) => item.kana}
-        numColumns={4}
-        contentContainerStyle={{ padding: 12 }}
+        numColumns={numColumns}
+        key={numColumns} // 强制重新渲染当列数变化时
+        contentContainerStyle={[
+          styles.gridContainer,
+          isWideScreen && styles.gridContainerWide,
+        ]}
+        columnWrapperStyle={[
+          styles.columnWrapperMobile,
+          isWideScreen && styles.columnWrapper,
+        ]}
         renderItem={({ item }) => {
           const stat = progress[keyFor(script, item.kana)];
           return (
             <TouchableOpacity
               onPress={() => openCard(item)}
-              style={styles.tile}
+              style={[
+                styles.tile,
+                isWideScreen && styles.tileWide,
+                { width: tileSize, minWidth: tileSize, maxWidth: tileSize },
+              ]}
             >
-              <Text style={styles.kana}>{item.kana}</Text>
-              <Text style={styles.romaji}>{item.romaji}</Text>
+              <Text style={[styles.kana, isWideScreen && styles.kanaWide]}>
+                {item.kana}
+              </Text>
+              <Text style={[styles.romaji, isWideScreen && styles.romajiWide]}>
+                {item.romaji}
+              </Text>
               <Text style={styles.small}>
                 ✓{stat?.totalCorrect ?? 0} ✕{stat?.totalWrong ?? 0}
               </Text>
@@ -526,21 +545,24 @@ export default function App(): React.JSX.Element {
       <Animated.View
         style={[
           styles.quizWrap,
+          isWideScreen && styles.quizWrapWide,
           { backgroundColor: feedbackBackground as any },
         ]}
       >
         {mixedMode && (
-          <Text style={{ fontSize: 14, color: "#888" }}>
+          <Text style={styles.quizHint}>
             {HIRAGANA.some((h) => h.kana === item.kana) ? "平假名" : "片假名"}
           </Text>
         )}
 
-        <Text style={styles.quizTitle}>
+        <Text style={[styles.quizTitle, isWideScreen && styles.quizTitleWide]}>
           What is this kana? ({quizIndex + 1}/{quizOrder.length})
         </Text>
-        <Text style={styles.bigKana}>{item.kana}</Text>
+        <Text style={[styles.bigKana, isWideScreen && styles.bigKanaWide]}>
+          {item.kana}
+        </Text>
 
-        <View style={{ marginTop: 20 }}>
+        <View style={[styles.optionsContainer, isWideScreen && styles.optionsContainerWide]}>
           {options.map((opt) => {
             const isCorrectOpt =
               lastAnswerCorrect !== null &&
@@ -555,28 +577,33 @@ export default function App(): React.JSX.Element {
                 key={opt}
                 style={[
                   styles.quizOpt,
+                  isWideScreen && styles.quizOptWide,
                   isCorrectOpt ? styles.correctOpt : null,
                   isWrongOpt ? styles.wrongOpt : null,
                 ]}
                 onPress={() => answerQuiz(opt)}
                 disabled={lastAnswerCorrect !== null}
               >
-                <Text style={styles.quizText}>{opt}</Text>
+                <Text style={[styles.quizText, isWideScreen && styles.quizTextWide]}>
+                  {opt}
+                </Text>
               </TouchableOpacity>
             );
           })}
+        </View>
 
-          {lastAnswerCorrect !== null && (
-            <View style={{ marginTop: 12, alignItems: "center" }}>
-              <Text>{lastAnswerCorrect ? "Correct ✅" : "Wrong ❌"}</Text>
-            </View>
-          )}
-
-          <View style={{ marginTop: 20, alignItems: "center" }}>
-            <Text>
-              Score: {quizScore.correct} / {quizScore.correct + quizScore.wrong}
+        {lastAnswerCorrect !== null && (
+          <View style={styles.feedbackContainer}>
+            <Text style={styles.feedbackText}>
+              {lastAnswerCorrect ? "Correct ✅" : "Wrong ❌"}
             </Text>
           </View>
+        )}
+
+        <View style={styles.scoreContainer}>
+          <Text style={[styles.scoreText, isWideScreen && styles.scoreTextWide]}>
+            Score: {quizScore.correct} / {quizScore.correct + quizScore.wrong}
+          </Text>
         </View>
       </Animated.View>
     );
@@ -584,46 +611,58 @@ export default function App(): React.JSX.Element {
 
   // --- UI -----------------------------------------------------------------
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, isWideScreen && styles.containerWide]}>
       <StatusBar style="auto" />
 
-      <View style={styles.header}>
-        <Text style={styles.title}>日语50音 — 学习卡</Text>
+      <View style={[styles.header, isWideScreen && styles.headerWide]}>
+        <Text style={[styles.title, isWideScreen && styles.titleWide]}>
+          日语50音 — 学习卡
+        </Text>
 
-        <View style={styles.headerBtns}>
+        <View style={[styles.headerBtns, isWideScreen && styles.headerBtnsWide]}>
           <TouchableOpacity
             onPress={() => setMode("grid")}
-            style={styles.smallBtn}
+            style={[styles.smallBtn, isWideScreen && styles.smallBtnWide]}
           >
-            <Text>Grid</Text>
+            <Text style={isWideScreen ? styles.btnTextWide : undefined}>Grid</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => setMode("card")}
-            style={styles.smallBtn}
+            style={[styles.smallBtn, isWideScreen && styles.smallBtnWide]}
           >
-            <Text>Flashcards</Text>
+            <Text style={isWideScreen ? styles.btnTextWide : undefined}>Flashcards</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={startQuiz} style={styles.smallBtn}>
-            <Text>Quiz</Text>
+          <TouchableOpacity
+            onPress={startQuiz}
+            style={[styles.smallBtn, isWideScreen && styles.smallBtnWide]}
+          >
+            <Text style={isWideScreen ? styles.btnTextWide : undefined}>Quiz</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.smallBtn} onPress={clearProgress}>
-            <Text>Clear Progress</Text>
+          <TouchableOpacity
+            style={[styles.smallBtn, isWideScreen && styles.smallBtnWide]}
+            onPress={clearProgress}
+          >
+            <Text style={isWideScreen ? styles.btnTextWide : undefined}>Clear Progress</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.headerBtns, { marginTop: 6 }]}>
+        <View style={[styles.headerBtns, styles.headerBtnsSecond, isWideScreen && styles.headerBtnsWide]}>
           <TouchableOpacity
             onPress={() => {
               setMode("grid");
               setScript("hiragana");
               setMixedMode(false);
             }}
-            style={[styles.smallBtn, script === "hiragana" && styles.activeBtn]}
+            style={[
+              styles.smallBtn,
+              isWideScreen && styles.smallBtnWide,
+              script === "hiragana" && styles.activeBtn,
+            ]}
           >
-            <Text>平假名</Text>
+            <Text style={isWideScreen ? styles.btnTextWide : undefined}>平假名</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
@@ -631,9 +670,13 @@ export default function App(): React.JSX.Element {
               setScript("katakana");
               setMixedMode(false);
             }}
-            style={[styles.smallBtn, script === "katakana" && styles.activeBtn]}
+            style={[
+              styles.smallBtn,
+              isWideScreen && styles.smallBtnWide,
+              script === "katakana" && styles.activeBtn,
+            ]}
           >
-            <Text>片假名</Text>
+            <Text style={isWideScreen ? styles.btnTextWide : undefined}>片假名</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -642,18 +685,22 @@ export default function App(): React.JSX.Element {
               setMixedMode(!mixedMode);
               setScript("");
             }}
-            style={[styles.smallBtn, mixedMode && styles.activeBtn]}
+            style={[
+              styles.smallBtn,
+              isWideScreen && styles.smallBtnWide,
+              mixedMode && styles.activeBtn,
+            ]}
           >
-            <Text>混合</Text>
+            <Text style={isWideScreen ? styles.btnTextWide : undefined}>混合</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={{ flex: 1 }}>
+      <View style={styles.contentArea}>
         {mode === "grid" && renderGrid()}
         {mode === "card" && (
-          <View style={{ padding: 20 }}>
-            <Text style={{ marginBottom: 12 }}>
+          <View style={[styles.cardModeHint, isWideScreen && styles.cardModeHintWide]}>
+            <Text style={isWideScreen ? styles.hintTextWide : undefined}>
               Tap a tile to open flashcard.
             </Text>
             {renderGrid()}
@@ -670,32 +717,96 @@ export default function App(): React.JSX.Element {
 
 // --- styles ---------------------------------------------------------------
 const styles = StyleSheet.create({
+  // Container
   container: { flex: 1, backgroundColor: "#fff" },
-  header: { padding: 14, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  title: { fontSize: 18, fontWeight: "700" },
-  headerBtns: { flexDirection: "row", gap: 8, marginTop: 8 },
-  smallBtn: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f2f2f2",
-    marginRight: 8,
+  containerWide: {
+    backgroundColor: "#f8f9fa",
   },
+
+  // Header
+  header: { padding: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: "#eee" },
+  headerWide: {
+    padding: 20,
+    paddingHorizontal: 40,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  title: { fontSize: 16, fontWeight: "700" },
+  titleWide: { fontSize: 24, marginBottom: 4 },
+  headerBtns: { flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" },
+  headerBtnsWide: { gap: 12 },
+  headerBtnsSecond: { marginTop: 4 },
+
+  // Buttons
+  smallBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: "#f2f2f2",
+  },
+  smallBtnWide: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 0,
+  },
+  btnTextWide: { fontSize: 15 },
   activeBtn: { backgroundColor: "#d6f5d6" },
+
+  // Content area
+  contentArea: { flex: 1 },
+
+  // Grid
+  gridContainer: { padding: 12, paddingBottom: 100 },
+  gridContainerWide: {
+    padding: 24,
+    paddingHorizontal: 40,
+    alignItems: "center",
+  },
+  columnWrapperMobile: {
+    justifyContent: "center",
+    gap: 6,
+  },
+  columnWrapper: {
+    justifyContent: "center",
+    gap: 8,
+  },
   tile: {
-    flex: 1,
-    margin: 6,
-    padding: 12,
-    minWidth: 80,
-    maxWidth: 80,
+    margin: 4,
+    padding: 8,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
     backgroundColor: "#fafafa",
     elevation: 1,
   },
-  kana: { fontSize: 28, fontWeight: "700" },
-  romaji: { marginTop: 6, color: "#444" },
-  small: { marginTop: 6, fontSize: 12, color: "#999" },
+  tileWide: {
+    margin: 6,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  kana: { fontSize: 24, fontWeight: "700" },
+  kanaWide: { fontSize: 32 },
+  romaji: { marginTop: 3, color: "#444", fontSize: 12 },
+  romajiWide: { fontSize: 15, marginTop: 6 },
+  small: { marginTop: 3, fontSize: 10, color: "#999" },
+
+  // Card mode
+  cardModeHint: { padding: 20 },
+  cardModeHintWide: { padding: 24, paddingHorizontal: 40 },
+  hintTextWide: { fontSize: 16, marginBottom: 16 },
+
+  // Modal
   modalWrap: { flex: 1 },
   modalHeader: { padding: 12, borderBottomWidth: 1, borderBottomColor: "#eee" },
   close: { color: "#007AFF" },
@@ -709,25 +820,62 @@ const styles = StyleSheet.create({
     backfaceVisibility: "hidden",
   },
   cardBack: { backgroundColor: "#fff" },
-  bigKana: { fontSize: 96, fontWeight: "700" },
-  bigRomaji: { fontSize: 48, fontWeight: "600" },
+  bigKana: { fontSize: 72, fontWeight: "700" },
+  bigKanaWide: { fontSize: 120 },
+  bigRomaji: { fontSize: 36, fontWeight: "600" },
   cardControls: {
     padding: 20,
     flexDirection: "row",
     justifyContent: "space-around",
   },
   btn: { padding: 12, borderRadius: 8, backgroundColor: "#f2f2f2" },
-  quizWrap: { flex: 1, alignItems: "center", justifyContent: "center" },
-  quizTitle: { fontSize: 16, marginBottom: 12 },
+
+  // Quiz
+  quizWrap: { flex: 1, alignItems: "center", justifyContent: "center", padding: 16 },
+  quizWrapWide: {
+    padding: 40,
+    maxWidth: 600,
+    alignSelf: "center",
+    width: "100%",
+  },
+  quizHint: { fontSize: 12, color: "#888", marginBottom: 6 },
+  quizTitle: { fontSize: 14, marginBottom: 8 },
+  quizTitleWide: { fontSize: 20, marginBottom: 16 },
+  optionsContainer: { marginTop: 16, width: "100%", alignItems: "center" },
+  optionsContainerWide: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 12,
+    marginTop: 32,
+  },
   quizOpt: {
-    padding: 12,
-    marginVertical: 6,
-    width: 220,
+    padding: 10,
+    marginVertical: 4,
+    width: 180,
     alignItems: "center",
     borderRadius: 8,
     backgroundColor: "#f5f5f5",
   },
+  quizOptWide: {
+    width: 140,
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 0,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   correctOpt: { backgroundColor: "#d4f7d4" },
   wrongOpt: { backgroundColor: "#f7d4d4" },
-  quizText: { fontSize: 16 },
+  quizText: { fontSize: 15 },
+  quizTextWide: { fontSize: 18, fontWeight: "500" },
+  feedbackContainer: { marginTop: 12, alignItems: "center" },
+  feedbackText: { fontSize: 14 },
+  scoreContainer: { marginTop: 16, alignItems: "center" },
+  scoreText: { fontSize: 13 },
+  scoreTextWide: { fontSize: 18 },
 });

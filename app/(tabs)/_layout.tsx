@@ -1,5 +1,4 @@
 import { Tabs } from "expo-router";
-import React from "react";
 import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
@@ -37,30 +36,31 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="json_helper"
+        name="curl_helper"
         options={{
-          title: "JSON Helper",
+          title: "CURL Helper",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="terminal.fill" color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="api_doc_generator"
+        name="json_helper"
         options={{
-          title: "API DOC generator",
+          title: "JSON Helper",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="curlybraces" color={color} />
           ),
         }}
       />
+
 
       <Tabs.Screen
         name="japanese_learning"
         options={{
           title: "JP learn",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="character.book.closed.fill" color={color} />
           ),
         }}
       />
