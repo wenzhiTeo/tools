@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { GlobalStyles, GlobalWebStyles } from "@styles/global";
@@ -38,6 +39,9 @@ const UNNECESSARY_HEADERS = [
 ];
 
 export default function CURLHelper() {
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 600;
+
   const [curlInput, setCurlInput] = useState(
     `curl "https://example.com/api/data" -H "Authorization: Bearer token123" -H "User-Agent: CustomAgent" -d "param=value"`
   );
@@ -265,7 +269,7 @@ export default function CURLHelper() {
         value={curlInput}
         onChangeText={handleCurlInputChange}
         multiline
-        style={styles.textArea}
+        style={[styles.textArea, isSmallScreen && styles.textAreaSmall]}
         placeholder="Paste your curl command here..."
       />
 
@@ -274,24 +278,24 @@ export default function CURLHelper() {
         placeholder={getUrlPlaceholder()}
         value={urlReplaceFrom}
         onChangeText={setUrlReplaceFrom}
-        style={styles.input}
+        style={[styles.input, isSmallScreen && styles.inputSmall]}
       />
       <TextInput
         placeholder="Replace to..."
         value={urlReplaceTo}
         onChangeText={setUrlReplaceTo}
-        style={styles.input}
+        style={[styles.input, isSmallScreen && styles.inputSmall]}
       />
 
       <Text style={commonStyleSheet.sectionTitle}>Token Replacement</Text>
-      <Text style={styles.hintText}>
+      <Text style={[styles.hintText, isSmallScreen && styles.hintTextSmall]}>
         Enter a new token to replace the existing one. Leave empty to keep the original token.
       </Text>
       <TextInput
         placeholder="New token..."
         value={newToken}
         onChangeText={setNewToken}
-        style={styles.input}
+        style={[styles.input, isSmallScreen && styles.inputSmall]}
       />
 
       <Text style={GlobalStyles.sectionTitle}>Disable Headers</Text>
@@ -303,34 +307,34 @@ export default function CURLHelper() {
               setDisabledHeaders((prev) => ({ ...prev, [header]: val }))
             }
           />
-          <Text style={styles.switchLabel}>{header}</Text>
+          <Text style={[styles.switchLabel, isSmallScreen && styles.switchLabelSmall]}>{header}</Text>
         </View>
       ))}
 
-      <View style={styles.buttonRow}>
+      <View style={[styles.buttonRow, isSmallScreen && styles.buttonRowSmall]}>
         <TouchableOpacity
-          style={[styles.actionBtn, styles.processBtn]}
+          style={[styles.actionBtn, styles.processBtn, isSmallScreen && styles.actionBtnSmall]}
           onPress={() => processCurl(false)}
         >
-          <Text style={styles.actionBtnText}>Process Curl</Text>
+          <Text style={[styles.actionBtnText, isSmallScreen && styles.actionBtnTextSmall]}>Process Curl</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.actionBtn, styles.minimizeBtn]}
+          style={[styles.actionBtn, styles.minimizeBtn, isSmallScreen && styles.actionBtnSmall]}
           onPress={() => processCurl(true)}
         >
-          <Text style={styles.actionBtnText}>Minimize</Text>
+          <Text style={[styles.actionBtnText, isSmallScreen && styles.actionBtnTextSmall]}>Minimize</Text>
         </TouchableOpacity>
       </View>
 
       {output ? (
-        <View style={styles.outputBox}>
+        <View style={[styles.outputBox, isSmallScreen && styles.outputBoxSmall]}>
           <View style={styles.headerRow}>
-            <Text style={styles.outputTitle}>Modified Curl</Text>
+            <Text style={[styles.outputTitle, isSmallScreen && styles.outputTitleSmall]}>Modified Curl</Text>
             <TouchableOpacity onPress={copyToClipboard} style={styles.copyBtn}>
               <Text style={styles.copyBtnText}>Copy</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.outputText}>{output}</Text>
+          <Text style={[styles.outputText, isSmallScreen && styles.outputTextSmall]}>{output}</Text>
         </View>
       ) : null}
     </ScrollView>
@@ -347,6 +351,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     textAlignVertical: "top",
   },
+  textAreaSmall: {
+    minHeight: 100,
+    fontSize: 13,
+    padding: 8,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -355,10 +364,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: "#fff",
   },
+  inputSmall: {
+    padding: 8,
+    fontSize: 13,
+    marginBottom: 8,
+  },
   hintText: {
     fontSize: 13,
     color: "#666",
     marginBottom: 8,
+  },
+  hintTextSmall: {
+    fontSize: 12,
+    marginBottom: 6,
   },
   switchRow: {
     flexDirection: "row",
@@ -370,16 +388,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#444",
   },
+  switchLabelSmall: {
+    fontSize: 13,
+  },
   buttonRow: {
     flexDirection: "row",
     marginTop: 16,
     gap: 12,
+  },
+  buttonRowSmall: {
+    marginTop: 12,
+    gap: 8,
   },
   actionBtn: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
+  },
+  actionBtnSmall: {
+    paddingVertical: 10,
+    borderRadius: 6,
   },
   processBtn: {
     backgroundColor: "#4CAF50",
@@ -392,12 +421,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 15,
   },
+  actionBtnTextSmall: {
+    fontSize: 13,
+  },
 
   outputBox: {
     marginTop: 24,
     backgroundColor: "#1e1e1e",
     padding: 12,
     borderRadius: 8,
+  },
+  outputBoxSmall: {
+    marginTop: 16,
+    padding: 10,
   },
   headerRow: {
     flexDirection: "row",
@@ -411,9 +447,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginBottom: 8,
   },
+  outputTitleSmall: {
+    fontSize: 14,
+    marginBottom: 6,
+  },
   outputText: {
     color: "#f1f1f1",
     fontFamily: "monospace",
+  },
+  outputTextSmall: {
+    fontSize: 12,
   },
 
   copyBtn: {

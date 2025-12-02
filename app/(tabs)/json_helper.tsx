@@ -6,19 +6,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
-import React, {
+import {
   Suspense,
   useEffect,
   useState,
   useRef,
   useCallback,
+  lazy,
 } from "react";
 
 import { GlobalStyles, GlobalWebStyles } from "@styles/global";
 import { OrderControl } from "@/components/json_helper/orderControl";
 
-const LazyReactJsonView = React.lazy(() => import("react-json-view-custom"));
+const LazyReactJsonView = lazy(() => import("react-json-view-custom"));
 
 function useDebouncedCallback<T extends (...args: any[]) => void>(
   cb: T,
@@ -50,6 +52,9 @@ export const JsonViewer = ({ data, ...otherProps }: Props) => {
 };
 
 export default function JsonHelper() {
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 768;
+
   const exampleRawJson =
     '{"firstName":"John","lastName":"Doe","age":30,"isStudent":false,"courses":[{"title":"History 101","credits":3},{"title":"Math 202","credits":4}],"address":{"street":"123 Main St","city":"Anytown","zipCode":"12345"}}';
 
@@ -185,23 +190,28 @@ export default function JsonHelper() {
   const commonStyleSheet =
     Platform.OS === "web" ? GlobalWebStyles : GlobalStyles;
 
+  // 手机端使用更小的 padding
+  const containerStyle = isSmallScreen 
+    ? [commonStyleSheet.container, { padding: 12 }] 
+    : commonStyleSheet.container;
+
   return (
-    <ScrollView style={commonStyleSheet.container}>
-      <Text style={commonStyleSheet.sectionTitle}>Json Helper</Text>
+    <ScrollView style={containerStyle}>
+      <Text style={[commonStyleSheet.sectionTitle, isSmallScreen && styles.sectionTitleSmall]}>Json Helper</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, isSmallScreen && styles.inputSmall]}
         placeholder="Paste JSON here"
         value={raw}
         onChangeText={handleChange}
         multiline
       />
 
-      <Text style={commonStyleSheet.sectionTitle}>Formatted Result</Text>
-      <div style={styles.resultContainer}>
+      <Text style={[commonStyleSheet.sectionTitle, isSmallScreen && styles.sectionTitleSmall]}>Formatted Result</Text>
+      <div style={isSmallScreen ? styles.resultContainerSmall : styles.resultContainer}>
         {error ? (
           <div style={styles.errorText}>{error}</div>
         ) : (
-          <div style={styles.leftPane}>
+          <div style={isSmallScreen ? styles.leftPaneSmall : styles.leftPane}>
             <JsonViewer
               data={jsonData}
               onToggleCollapsed={(props) => {
@@ -216,9 +226,9 @@ export default function JsonHelper() {
           </div>
         )}
 
-        <div style={styles.rightPane}>
-          <View style={{ ...styles.subPane, marginBottom: 20 }}>
-            <Text style={{ fontSize: 16, marginBottom: 10 }}>Choose Keys:</Text>
+        <div style={isSmallScreen ? styles.rightPaneSmall : styles.rightPane}>
+          <View style={{ ...styles.subPane, marginBottom: isSmallScreen ? 12 : 20 }}>
+            <Text style={{ fontSize: isSmallScreen ? 14 : 16, marginBottom: isSmallScreen ? 8 : 10 }}>Choose Keys:</Text>
 
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               {availableKeys.map((key) => {
@@ -228,14 +238,14 @@ export default function JsonHelper() {
                     key={key}
                     onPress={() => toggleKey(key)}
                     style={{
-                      paddingVertical: 8,
-                      paddingHorizontal: 12,
-                      margin: 5,
+                      paddingVertical: isSmallScreen ? 6 : 8,
+                      paddingHorizontal: isSmallScreen ? 10 : 12,
+                      margin: isSmallScreen ? 3 : 5,
                       borderRadius: 20,
                       backgroundColor: isSelected ? "#4CAF50" : "#ddd",
                     }}
                   >
-                    <Text style={{ color: isSelected ? "white" : "black" }}>
+                    <Text style={{ color: isSelected ? "white" : "black", fontSize: isSmallScreen ? 12 : 14 }}>
                       {key}
                     </Text>
                   </TouchableOpacity>
@@ -243,7 +253,7 @@ export default function JsonHelper() {
               })}
             </View>
 
-            <Text style={{ fontSize: 16, marginBottom: 20, marginTop: 10 }}>
+            <Text style={{ fontSize: isSmallScreen ? 13 : 16, marginBottom: isSmallScreen ? 12 : 20, marginTop: isSmallScreen ? 8 : 10 }}>
               Selected: {selectedKeys.join(", ") || "None"}
             </Text>
           </View>
@@ -274,6 +284,13 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 12,
   },
+  resultContainerSmall: {
+    display: "flex",
+    flexDirection: "column", // 手机端上下排版
+    width: "100%",
+    marginTop: 8,
+    boxSizing: "border-box",
+  },
   leftPane: {
     ...((Platform.OS === "web" ? { resize: "horizontal" } : {}) as any),
     minWidth: "30%",
@@ -289,6 +306,21 @@ const styles = StyleSheet.create({
 
     textAlignVertical: "top", // keeps text at top in Android
     overflow: "scroll",
+    boxSizing: "border-box",
+  },
+  leftPaneSmall: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 8,
+    minHeight: 250,
+    maxHeight: 400,
+    fontSize: 12,
+    backgroundColor: "#fff",
+    overflow: "scroll",
+    marginBottom: 12,
+    boxSizing: "border-box",
   },
   rightPane: {
     flex: 1, // 自适应剩余空间
@@ -304,6 +336,18 @@ const styles = StyleSheet.create({
     textAlignVertical: "top", // keeps text at top in Android
     overflow: "scroll",
   },
+  rightPaneSmall: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    minHeight: 300,
+    fontSize: 12,
+    backgroundColor: "#fff",
+    padding: 10,
+    overflow: "scroll",
+    boxSizing: "border-box",
+  },
 
   subPane: {
     borderWidth: 1,
@@ -311,6 +355,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 12,
     borderRadius: 10,
+  },
+
+  sectionTitleSmall: {
+    fontSize: 16,
+    marginBottom: 8,
   },
 
   input: {
@@ -325,8 +374,17 @@ const styles = StyleSheet.create({
 
     textAlignVertical: "top", // keeps text at top in Android
     overflow: "scroll",
+    boxSizing: "border-box",
     // 👇 this works on web only
     ...((Platform.OS === "web" ? { resize: "vertical" } : {}) as any), // 👈 fix TS
+  },
+  inputSmall: {
+    padding: 10,
+    borderRadius: 8,
+    minHeight: 80,
+    fontSize: 13,
+    marginBottom: 10,
+    boxSizing: "border-box",
   },
   output: {
     flex: 1,

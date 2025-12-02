@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Alert, useWindowDimensions } from "react-native";
 
 type OrderDirection = "ASC" | "DESC";
 
@@ -14,6 +14,9 @@ export function OrderControl<T extends Record<string, any>>({
   data,
   onOrdered,
 }: OrderBoxProps<T>) {
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 768;
+
   const [orderKey, setOrderKey] = useState<string>("");
   const [orderDirection, setOrderDirection] = useState<OrderDirection>("ASC");
 
@@ -55,13 +58,79 @@ export function OrderControl<T extends Record<string, any>>({
     onOrdered(ordered);
   };
 
+  if (isSmallScreen) {
+    // 手机端：上下两行布局
+    return (
+      <View style={{ marginBottom: 12, width: "100%" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+          <TextInput
+            value={orderKey}
+            onChangeText={setOrderKey}
+            placeholder="Sort by key"
+            style={{
+              flex: 1,
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 6,
+              padding: 8,
+              fontSize: 13,
+            }}
+          />
+        </View>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <TouchableOpacity
+            onPress={() => setOrderDirection("ASC")}
+            style={{
+              flex: 1,
+              paddingVertical: 8,
+              borderRadius: 6,
+              backgroundColor: orderDirection === "ASC" ? "#4CAF50" : "#ddd",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: orderDirection === "ASC" ? "white" : "black", fontSize: 13 }}>
+              ASC
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setOrderDirection("DESC")}
+            style={{
+              flex: 1,
+              paddingVertical: 8,
+              borderRadius: 6,
+              backgroundColor: orderDirection === "DESC" ? "#4CAF50" : "#ddd",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: orderDirection === "DESC" ? "white" : "black", fontSize: 13 }}>
+              DESC
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleConfirm}
+            style={{
+              flex: 1,
+              paddingVertical: 8,
+              borderRadius: 6,
+              backgroundColor: "#2196F3",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 13 }}>Sort</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  // 电脑端：横向一行布局
   return (
     <View
       style={{
         flexDirection: "row",
         alignItems: "center",
         marginBottom: 20,
-        width: 300,
+        maxWidth: 400,
       }}
     >
       <TextInput
