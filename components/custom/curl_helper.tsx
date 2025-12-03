@@ -45,7 +45,7 @@ export default function CURLHelper() {
   const [curlInput, setCurlInput] = useState(
     `curl "https://example.com/api/data" -H "Authorization: Bearer token123" -H "User-Agent: CustomAgent" -d "param=value"`
   );
-  const [urlReplaceFrom, setUrlReplaceFrom] = useState("");
+  const [urlReplaceFrom, setUrlReplaceFrom] = useState("https://example.com/api/data");
   const [urlReplaceTo, setUrlReplaceTo] = useState("http://127.0.0.1:6000");
   const [newToken, setNewToken] = useState("");
   const [disabledHeaders, setDisabledHeaders] = useState<
@@ -63,15 +63,16 @@ export default function CURLHelper() {
     return match ? match[1] : "";
   };
 
-  // 当输入变化时自动提取 URL
+  // 当输入变化时更新 curlInput
   const handleCurlInputChange = (text: string) => {
     setCurlInput(text);
-    // 只在 urlReplaceFrom 为空时自动填充
-    if (!urlReplaceFrom) {
-      const extracted = extractUrl(text);
-      if (extracted) {
-        setUrlReplaceFrom(extracted);
-      }
+  };
+
+  // 手动提取 URL 按钮
+  const handleExtractUrl = () => {
+    const extracted = extractUrl(curlInput);
+    if (extracted) {
+      setUrlReplaceFrom(extracted);
     }
   };
 
@@ -274,12 +275,17 @@ export default function CURLHelper() {
       />
 
       <Text style={commonStyleSheet.sectionTitle}>URL Replacement</Text>
-      <TextInput
-        placeholder={getUrlPlaceholder()}
-        value={urlReplaceFrom}
-        onChangeText={setUrlReplaceFrom}
-        style={[styles.input, isSmallScreen && styles.inputSmall]}
-      />
+      <View style={styles.urlRow}>
+        <TextInput
+          placeholder={getUrlPlaceholder()}
+          value={urlReplaceFrom}
+          onChangeText={setUrlReplaceFrom}
+          style={[styles.input, styles.urlInput, isSmallScreen && styles.inputSmall]}
+        />
+        <TouchableOpacity onPress={handleExtractUrl} style={styles.extractBtn}>
+          <Text style={styles.extractBtnText}>Extract</Text>
+        </TouchableOpacity>
+      </View>
       <TextInput
         placeholder="Replace to..."
         value={urlReplaceTo}
@@ -390,6 +396,27 @@ const styles = StyleSheet.create({
   },
   switchLabelSmall: {
     fontSize: 13,
+  },
+  urlRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    gap: 8,
+  },
+  urlInput: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  extractBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: "#2196F3",
+    borderRadius: 8,
+  },
+  extractBtnText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
   },
   buttonRow: {
     flexDirection: "row",
