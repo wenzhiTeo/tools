@@ -1,59 +1,92 @@
-# Welcome to tools 👋
+# Dev Tools
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A collection of developer utility tools built with [Expo](https://expo.dev) and React Native. Works on Web, iOS, and Android.
 
-This project is including my common used tools (some of them only available in desktop ver)
-- CURL replacement tool
-- Json formatter and extract tool
+## Features
 
-```
-npx expo export --platform web
-eas deploy
-```
+### CURL Helper
+Parse, modify, and simplify curl commands for local development:
+- URL replacement for redirecting requests to localhost
+- Token replacement for authentication testing
+- Header filtering (remove unnecessary headers)
+- One-click minimize mode for cleaner commands
 
-## Get started
+### JSON Helper
+Format, validate, and transform JSON data:
+- Pretty print with syntax highlighting
+- Interactive tree view with expand/collapse
+- Extract and filter specific keys from arrays
+- Reorder object keys
 
-1. Install dependencies
+### Japanese Learning (50音)
+Practice Hiragana and Katakana:
+- Grid view with progress tracking
+- Flashcard mode with flip animation
+- Quiz mode with spaced repetition
+- Audio pronunciation support
 
-   ```bash
-   npm install
-   ```
+## Getting Started
 
-2. Start the app
+### Prerequisites
+- Node.js 18+
+- npm or yarn
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Installation
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Development
 
-## Learn more
+```bash
+# Start development server
+npx expo start
 
-To learn more about developing your project with Expo, look at the following resources:
+# Run on specific platform
+npx expo start --web
+npx expo start --ios
+npx expo start --android
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Build for Production
 
-## Join the community
+```bash
+# Build web version
+npx expo export --platform web
 
-Join our community of developers creating universal apps.
+# Deploy to EAS
+npx eas deploy
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Project Structure
+
+```
+├── app/                    # Expo Router pages
+│   ├── (tabs)/            # Tab-based navigation
+│   │   ├── index.tsx      # Home screen
+│   │   ├── curl_helper.tsx
+│   │   ├── json_helper.tsx
+│   │   └── japanese_learning.tsx
+│   └── _layout.tsx        # Root layout
+├── components/
+│   ├── custom/            # Tool-specific components
+│   ├── json_helper/       # JSON helper components
+│   └── ui/                # Shared UI components
+├── src/
+│   └── styles/            # Global styles
+├── assets/                # Images and fonts
+├── constants/             # Theme colors
+└── hooks/                 # Custom React hooks
+```
+
+## Tech Stack
+
+- **Framework**: [Expo](https://expo.dev) (SDK 53)
+- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/)
+- **UI**: React Native with platform-specific optimizations
+- **State**: React hooks + AsyncStorage for persistence
+
+## License
+
+MIT
