@@ -56,16 +56,15 @@ export function OrderControl<T extends Record<string, any>>({
         onPress={() => setOrderDirection(dir)}
         style={{
           flex: isSmall ? 1 : undefined,
-          paddingVertical: isSmall ? 7 : 8,
-          paddingHorizontal: isSmall ? 0 : 16,
-          borderRadius: 20,
-          backgroundColor: active ? "#22c55e" : "#f1f5f9",
-          borderWidth: 1,
-          borderColor: active ? "#16a34a" : "#e2e8f0",
+          paddingVertical: isSmall ? 10 : 10,
+          paddingHorizontal: isSmall ? 0 : 18,
+          borderRadius: 12,
+          backgroundColor: active ? "#059669" : "#f1f5f9",
+          borderWidth: 0,
           alignItems: "center",
         }}
       >
-        <Text style={{ color: active ? "#fff" : "#64748b", fontSize: fs, fontWeight: "500" }}>
+        <Text style={{ color: active ? "#fff" : "#64748b", fontSize: fs, fontWeight: "600" }}>
           {label}
         </Text>
       </TouchableOpacity>
@@ -75,15 +74,19 @@ export function OrderControl<T extends Record<string, any>>({
   return (
     <View
       style={{
-        borderWidth: 1,
-        borderColor: "#e2e8f0",
-        borderRadius: 12,
-        backgroundColor: "#fff",
-        padding: isSmall ? 12 : 16,
-        marginBottom: isSmall ? 12 : 16,
+        borderWidth: 0,
+        borderRadius: 16,
+        backgroundColor: "#ffffff",
+        padding: isSmall ? 14 : 18,
+        marginBottom: isSmall ? 14 : 18,
+        shadowColor: "#64748b",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 2,
       }}
     >
-      <Text style={{ fontSize: isSmall ? 13 : 14, fontWeight: "600", color: "#334155", marginBottom: isSmall ? 8 : 12 }}>
+      <Text style={{ fontSize: isSmall ? 14 : 15, fontWeight: "700", color: "#1e293b", marginBottom: isSmall ? 10 : 14, letterSpacing: -0.2 }}>
         Sort
       </Text>
 
@@ -93,17 +96,16 @@ export function OrderControl<T extends Record<string, any>>({
             value={orderKey}
             onChangeText={setOrderKey}
             placeholder="Enter sort key"
-            placeholderTextColor="#cbd5e1"
+            placeholderTextColor="#94a3b8"
             style={{
-              borderWidth: 1,
-              borderColor: "#e2e8f0",
-              borderRadius: 8,
-              paddingVertical: 7,
-              paddingHorizontal: 10,
+              borderWidth: 0,
+              borderRadius: 12,
+              paddingVertical: 10,
+              paddingHorizontal: 14,
               fontSize: fs,
-              backgroundColor: "#f8fafc",
+              backgroundColor: "#f1f5f9",
               color: "#334155",
-              marginBottom: 8,
+              marginBottom: 10,
             }}
           />
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -113,9 +115,9 @@ export function OrderControl<T extends Record<string, any>>({
               onPress={handleConfirm}
               style={{
                 flex: 1,
-                paddingVertical: 7,
-                borderRadius: 20,
-                backgroundColor: "#3b82f6",
+                paddingVertical: 10,
+                borderRadius: 12,
+                backgroundColor: "#2563eb",
                 alignItems: "center",
               }}
             >
@@ -124,22 +126,21 @@ export function OrderControl<T extends Record<string, any>>({
           </View>
         </View>
       ) : (
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <TextInput
             value={orderKey}
             onChangeText={setOrderKey}
             placeholder="Enter sort key"
-            placeholderTextColor="#cbd5e1"
+            placeholderTextColor="#94a3b8"
             style={{
               flex: 1,
-              maxWidth: 180,
-              borderWidth: 1,
-              borderColor: "#e2e8f0",
-              borderRadius: 8,
-              paddingVertical: 7,
-              paddingHorizontal: 10,
+              maxWidth: 200,
+              borderWidth: 0,
+              borderRadius: 12,
+              paddingVertical: 10,
+              paddingHorizontal: 14,
               fontSize: fs,
-              backgroundColor: "#f8fafc",
+              backgroundColor: "#f1f5f9",
               color: "#334155",
             }}
           />
@@ -148,10 +149,10 @@ export function OrderControl<T extends Record<string, any>>({
           <TouchableOpacity
             onPress={handleConfirm}
             style={{
-              paddingVertical: 8,
-              paddingHorizontal: 20,
-              borderRadius: 20,
-              backgroundColor: "#3b82f6",
+              paddingVertical: 10,
+              paddingHorizontal: 24,
+              borderRadius: 12,
+              backgroundColor: "#2563eb",
             }}
           >
             <Text style={{ color: "#fff", fontSize: fs, fontWeight: "600" }}>Sort</Text>

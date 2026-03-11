@@ -21,6 +21,7 @@ import { GlobalStyles, GlobalWebStyles } from "@styles/global";
 import { OrderControl } from "@/components/json_helper/orderControl";
 import { ViewerSettings, ViewerSettingsValues } from "@/components/json_helper/viewerSettings";
 import { SumControl } from "@/components/json_helper/sumControl";
+import { ExtractValues } from "@/components/json_helper/extractValues";
 
 const LazyReactJsonView = lazy(() => import("react-json-view-custom"));
 
@@ -238,12 +239,12 @@ export default function JsonHelper() {
         )}
 
         <div style={isSmallScreen ? styles.rightPaneSmall : styles.rightPane}>
-          <View style={{ ...styles.subPane, marginBottom: isSmallScreen ? 12 : 16 }}>
-            <Text style={{ fontSize: isSmallScreen ? 13 : 14, fontWeight: "600", color: "#334155", marginBottom: isSmallScreen ? 8 : 12 }}>
+          <View style={{ ...styles.subPane, marginBottom: isSmallScreen ? 14 : 18 }}>
+            <Text style={{ fontSize: isSmallScreen ? 14 : 15, fontWeight: "700", color: "#1e293b", marginBottom: isSmallScreen ? 10 : 14, letterSpacing: -0.2 }}>
               Choose Keys
             </Text>
 
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: isSmallScreen ? 6 : 8 }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: isSmallScreen ? 8 : 10 }}>
               {availableKeys.map((key) => {
                 const isSelected = selectedKeys.includes(key);
                 return (
@@ -251,15 +252,14 @@ export default function JsonHelper() {
                     key={key}
                     onPress={() => toggleKey(key)}
                     style={{
-                      paddingVertical: isSmallScreen ? 5 : 6,
-                      paddingHorizontal: isSmallScreen ? 10 : 14,
-                      borderRadius: 20,
-                      backgroundColor: isSelected ? "#3b82f6" : "#f1f5f9",
-                      borderWidth: 1,
-                      borderColor: isSelected ? "#2563eb" : "#e2e8f0",
+                      paddingVertical: isSmallScreen ? 8 : 9,
+                      paddingHorizontal: isSmallScreen ? 14 : 18,
+                      borderRadius: 12,
+                      backgroundColor: isSelected ? "#2563eb" : "#f1f5f9",
+                      borderWidth: 0,
                     }}
                   >
-                    <Text style={{ color: isSelected ? "#fff" : "#64748b", fontSize: isSmallScreen ? 12 : 13, fontWeight: "500" }}>
+                    <Text style={{ color: isSelected ? "#fff" : "#64748b", fontSize: isSmallScreen ? 12 : 13, fontWeight: "600" }}>
                       {key}
                     </Text>
                   </TouchableOpacity>
@@ -268,7 +268,7 @@ export default function JsonHelper() {
             </View>
 
             {selectedKeys.length > 0 && (
-              <Text style={{ fontSize: isSmallScreen ? 11 : 12, color: "#94a3b8", marginTop: isSmallScreen ? 8 : 10 }}>
+              <Text style={{ fontSize: isSmallScreen ? 11 : 12, color: "#64748b", marginTop: isSmallScreen ? 10 : 12, fontWeight: "500" }}>
                 Selected: {selectedKeys.join(", ")}
               </Text>
             )}
@@ -289,14 +289,19 @@ export default function JsonHelper() {
             }
           />
 
-          <JsonViewer
-            data={
-              secondExtractContent ? secondExtractContent : firstExtractContent
-            }
-            viewerSettings={viewerSettings}
-          />
+          <View style={styles.subPane}>
+            <JsonViewer
+              data={
+                secondExtractContent ? secondExtractContent : firstExtractContent
+              }
+              viewerSettings={viewerSettings}
+            />
+          </View>
         </div>
       </div>
+
+      <Text style={[commonStyleSheet.sectionTitle, isSmallScreen && styles.sectionTitleSmall]}>Extract Values</Text>
+      <ExtractValues />
     </ScrollView>
   );
 }
@@ -306,122 +311,158 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     width: "100%",
-    marginTop: 12,
-    gap: 16,
+    marginTop: 16,
+    gap: 20,
   },
   resultContainerSmall: {
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    marginTop: 8,
-    gap: 12,
+    marginTop: 12,
+    gap: 16,
     boxSizing: "border-box" as const,
   },
   leftPane: {
     ...((Platform.OS === "web" ? { resize: "horizontal" } : {}) as any),
     minWidth: "30%",
     maxWidth: "70%",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    padding: 16,
-    borderRadius: 12,
-    minHeight: 500,
+    borderWidth: 0,
+    padding: 20,
+    borderRadius: 16,
+    minHeight: 520,
     fontSize: 14,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     textAlignVertical: "top",
     overflow: "scroll",
     boxSizing: "border-box" as const,
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   leftPaneSmall: {
     width: "100%",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    padding: 12,
-    borderRadius: 12,
-    minHeight: 250,
-    maxHeight: 400,
+    borderWidth: 0,
+    padding: 16,
+    borderRadius: 16,
+    minHeight: 280,
+    maxHeight: 420,
     fontSize: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     overflow: "scroll",
     boxSizing: "border-box" as const,
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   rightPane: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 12,
-    minHeight: 500,
+    borderWidth: 0,
+    borderRadius: 16,
+    minHeight: 520,
     fontSize: 14,
-    backgroundColor: "#f8fafc",
-    padding: 16,
+    backgroundColor: "#ffffff",
+    padding: 20,
     textAlignVertical: "top",
     overflow: "scroll",
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   rightPaneSmall: {
     width: "100%",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 12,
-    minHeight: 300,
+    borderWidth: 0,
+    borderRadius: 16,
+    minHeight: 320,
     fontSize: 12,
-    backgroundColor: "#f8fafc",
-    padding: 12,
+    backgroundColor: "#ffffff",
+    padding: 16,
     overflow: "scroll",
     boxSizing: "border-box" as const,
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   subPane: {
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
+    borderWidth: 0,
+    backgroundColor: "#f8fafc",
+    padding: 18,
+    borderRadius: 14,
+    shadowColor: "#94a3b8",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   sectionTitleSmall: {
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: 17,
+    marginBottom: 10,
+    fontWeight: "700",
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    padding: 14,
-    borderRadius: 12,
-    minHeight: 120,
+    borderWidth: 0,
+    padding: 18,
+    borderRadius: 16,
+    minHeight: 130,
     fontSize: 14,
-    marginBottom: 12,
-    backgroundColor: "#fff",
+    marginBottom: 16,
+    backgroundColor: "#ffffff",
     color: "#334155",
     textAlignVertical: "top",
     overflow: "scroll",
     boxSizing: "border-box" as const,
     ...((Platform.OS === "web" ? { resize: "vertical" } : {}) as any),
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   inputSmall: {
-    padding: 10,
-    borderRadius: 10,
-    minHeight: 80,
+    padding: 14,
+    borderRadius: 14,
+    minHeight: 90,
     fontSize: 13,
-    marginBottom: 10,
+    marginBottom: 12,
     boxSizing: "border-box" as const,
   },
   output: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 20,
     margin: 24,
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   errorText: {
-    color: "#ef4444",
+    color: "#dc2626",
     fontSize: 14,
-    marginTop: 8,
+    marginTop: 12,
+    padding: 14,
+    backgroundColor: "#fef2f2",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+    fontWeight: "500",
   },
 });
 
 const webStyles = {
   viewerWrapper: {
-    fontFamily: "Menlo, Monaco, Consolas, monospace",
-    fontSize: 14,
-    lineHeight: 1.4,
+    fontFamily: "'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace",
+    fontSize: 13.5,
+    lineHeight: 1.5,
     maxHeight: "70vh",
     overflow: "auto",
   } as React.CSSProperties,

@@ -92,17 +92,17 @@ export function ViewerSettings({ onChange }: Props) {
   const fs = isSmall ? 12 : 13;
 
   return (
-    <View style={{ marginBottom: isSmall ? 10 : 16 }}>
+    <View style={{ marginBottom: isSmall ? 12 : 18 }}>
       <TouchableOpacity
         onPress={() => setExpanded((v) => !v)}
         style={{
           flexDirection: "row",
           alignItems: "center",
-          paddingVertical: 6,
-          gap: 6,
+          paddingVertical: 8,
+          gap: 8,
         }}
       >
-        <Text style={{ fontSize: isSmall ? 13 : 15, fontWeight: "600", color: "#334155" }}>
+        <Text style={{ fontSize: isSmall ? 14 : 16, fontWeight: "700", color: "#1e293b", letterSpacing: -0.2 }}>
           {expanded ? "▾" : "▸"} Viewer Settings
         </Text>
       </TouchableOpacity>
@@ -110,12 +110,16 @@ export function ViewerSettings({ onChange }: Props) {
       {!expanded ? null : (
         <View
           style={{
-            borderWidth: 1,
-            borderColor: "#e2e8f0",
-            borderRadius: 12,
-            padding: isSmall ? 12 : 16,
-            backgroundColor: "#fff",
-            marginTop: 6,
+            borderWidth: 0,
+            borderRadius: 16,
+            padding: isSmall ? 14 : 18,
+            backgroundColor: "#ffffff",
+            marginTop: 8,
+            shadowColor: "#64748b",
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.06,
+            shadowRadius: 8,
+            elevation: 2,
           }}
         >
           {/* Boolean toggles */}
@@ -123,8 +127,8 @@ export function ViewerSettings({ onChange }: Props) {
             style={{
               flexDirection: "row",
               flexWrap: "wrap",
-              gap: isSmall ? 6 : 8,
-              marginBottom: isSmall ? 12 : 16,
+              gap: isSmall ? 8 : 10,
+              marginBottom: isSmall ? 14 : 18,
             }}
           >
             {toggleItems.map(({ key, label }) => {
@@ -134,19 +138,18 @@ export function ViewerSettings({ onChange }: Props) {
                   key={key}
                   onPress={() => update({ [key]: !active })}
                   style={{
-                    paddingVertical: isSmall ? 5 : 6,
-                    paddingHorizontal: isSmall ? 10 : 14,
-                    borderRadius: 20,
-                    backgroundColor: active ? "#22c55e" : "#f1f5f9",
-                    borderWidth: 1,
-                    borderColor: active ? "#16a34a" : "#e2e8f0",
+                    paddingVertical: isSmall ? 8 : 9,
+                    paddingHorizontal: isSmall ? 14 : 18,
+                    borderRadius: 12,
+                    backgroundColor: active ? "#059669" : "#f1f5f9",
+                    borderWidth: 0,
                   }}
                 >
                   <Text
                     style={{
                       color: active ? "#fff" : "#64748b",
                       fontSize: fs,
-                      fontWeight: "500",
+                      fontWeight: "600",
                     }}
                   >
                     {label}
@@ -159,21 +162,19 @@ export function ViewerSettings({ onChange }: Props) {
           {/* Number inputs */}
           <View
             style={{
-              borderWidth: 1,
-              borderColor: "#e2e8f0",
-              borderRadius: 10,
-              borderStyle: "dashed",
-              padding: isSmall ? 10 : 14,
+              borderWidth: 0,
+              borderRadius: 14,
+              padding: isSmall ? 12 : 16,
               backgroundColor: "#f8fafc",
             }}
           >
-            <Text style={{ fontSize: fs, color: "#94a3b8", marginBottom: isSmall ? 8 : 10, fontWeight: "500" }}>
+            <Text style={{ fontSize: fs, color: "#64748b", marginBottom: isSmall ? 10 : 12, fontWeight: "600" }}>
               Changes below take effect on Apply
             </Text>
             <View
               style={{
                 flexDirection: isSmall ? "column" : "row",
-                gap: isSmall ? 10 : 16,
+                gap: isSmall ? 12 : 20,
                 flexWrap: "wrap",
                 alignItems: isSmall ? "stretch" : "center",
               }}
@@ -183,28 +184,27 @@ export function ViewerSettings({ onChange }: Props) {
                 return (
                   <View
                     key={key}
-                    style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+                    style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
                   >
-                    <Text style={{ fontSize: fs, color: "#475569", minWidth: isSmall ? 130 : 150 }}>
+                    <Text style={{ fontSize: fs, color: "#475569", minWidth: isSmall ? 140 : 160, fontWeight: "500" }}>
                       {label}
                     </Text>
                     <TextInput
                       value={draft[draftKey]}
                       placeholder={placeholder}
-                      placeholderTextColor="#cbd5e1"
+                      placeholderTextColor="#94a3b8"
                       keyboardType="numeric"
                       onChangeText={(text) =>
                         setDraft((prev) => ({ ...prev, [draftKey]: text }))
                       }
                       style={{
-                        borderWidth: 1,
-                        borderColor: "#e2e8f0",
-                        borderRadius: 8,
-                        paddingVertical: 5,
-                        paddingHorizontal: 10,
+                        borderWidth: 0,
+                        borderRadius: 10,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
                         fontSize: fs,
-                        width: isSmall ? 80 : 90,
-                        backgroundColor: "#fff",
+                        width: isSmall ? 80 : 100,
+                        backgroundColor: "#ffffff",
                         color: "#334155",
                       }}
                     />
@@ -217,11 +217,11 @@ export function ViewerSettings({ onChange }: Props) {
               onPress={applyNumberSettings}
               style={{
                 alignSelf: "flex-end",
-                marginTop: isSmall ? 10 : 12,
-                paddingVertical: isSmall ? 6 : 7,
-                paddingHorizontal: isSmall ? 16 : 20,
-                borderRadius: 20,
-                backgroundColor: "#3b82f6",
+                marginTop: isSmall ? 12 : 14,
+                paddingVertical: isSmall ? 8 : 9,
+                paddingHorizontal: isSmall ? 20 : 24,
+                borderRadius: 12,
+                backgroundColor: "#2563eb",
               }}
             >
               <Text style={{ color: "#fff", fontSize: fs, fontWeight: "600" }}>
@@ -243,16 +243,15 @@ export function ViewerSettings({ onChange }: Props) {
             }}
             style={{
               alignSelf: "flex-start",
-              marginTop: isSmall ? 12 : 14,
-              paddingVertical: isSmall ? 6 : 7,
-              paddingHorizontal: isSmall ? 14 : 18,
-              borderRadius: 20,
-              backgroundColor: "#fff",
-              borderWidth: 1,
-              borderColor: "#e2e8f0",
+              marginTop: isSmall ? 14 : 16,
+              paddingVertical: isSmall ? 8 : 9,
+              paddingHorizontal: isSmall ? 16 : 20,
+              borderRadius: 12,
+              backgroundColor: "#f1f5f9",
+              borderWidth: 0,
             }}
           >
-            <Text style={{ color: "#64748b", fontSize: fs, fontWeight: "500" }}>
+            <Text style={{ color: "#64748b", fontSize: fs, fontWeight: "600" }}>
               ↺ Reset Defaults
             </Text>
           </TouchableOpacity>
