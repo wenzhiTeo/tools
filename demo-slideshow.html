@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wenzhi Tools Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1280px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #f5f5f5;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .slide img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .dot.active {
+            background: #667eea;
+        }
+        .labels {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .label {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .label.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+        .info {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Wenzhi Tools Demo</h1>
+        <div class="image-container">
+            <div class="slide active">
+                <img src="home.png" alt="Home Page">
+            </div>
+            <div class="slide">
+                <img src="curl-helper.png" alt="CURL Helper">
+            </div>
+            <div class="slide">
+                <img src="json-helper.png" alt="JSON Helper">
+            </div>
+            <div class="slide">
+                <img src="jp-learn.png" alt="JP Learn">
+            </div>
+        </div>
+        <div class="dots">
+            <div class="dot active" data-index="0"></div>
+            <div class="dot" data-index="1"></div>
+            <div class="dot" data-index="2"></div>
+            <div class="dot" data-index="3"></div>
+        </div>
+        <div class="labels">
+            <div class="label active" data-index="0">🏠 Home</div>
+            <div class="label" data-index="1">🔄 CURL Helper</div>
+            <div class="label" data-index="2">📝 JSON Helper</div>
+            <div class="label" data-index="3">🎌 JP Learn</div>
+        </div>
+        <div class="info">
+            <p>✨ Automatic slideshow - Hover to pause | Click dots to navigate</p>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const labels = document.querySelectorAll('.label');
+        let currentIndex = 0;
+        let interval;
+        const intervalTime = 3000;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            labels.forEach((label, i) => {
+                label.classList.toggle('active', i === index);
+            });
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % slides.length;
+            showSlide(currentIndex);
+        }
+
+        function startSlideshow() {
+            interval = setInterval(nextSlide, intervalTime);
+        }
+
+        function stopSlideshow() {
+            clearInterval(interval);
+        }
+
+        // Click handlers
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentIndex = index;
+                showSlide(currentIndex);
+                stopSlideshow();
+                startSlideshow();
+            });
+        });
+
+        labels.forEach((label, index) => {
+            label.addEventListener('click', () => {
+                currentIndex = index;
+                showSlide(currentIndex);
+                stopSlideshow();
+                startSlideshow();
+            });
+        });
+
+        // Hover to pause
+        document.querySelector('.container').addEventListener('mouseenter', stopSlideshow);
+        document.querySelector('.container').addEventListener('mouseleave', startSlideshow);
+
+        // Start slideshow
+        startSlideshow();
+    </script>
+</body>
+</html>

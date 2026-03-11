@@ -1,8 +1,20 @@
 # Dev Tools
 
+<div align="center">
+  <img src="demo-images/home.png" width="240" />
+  <img src="demo-images/curl-helper.png" width="240" />
+  <img src="demo-images/json-helper.png" width="240" />
+  <img src="demo-images/jp-learn.png" width="240" />
+  <p><em>从左到右: Home, CURL Helper, JSON Helper, JP Learn</em></p>
+</div>
+
 A collection of developer utility tools built with [Expo](https://expo.dev) and React Native. Works on Web, iOS, and Android.
 
-## Features
+## 🎯 Online Demo
+
+Try the live demo: [wenzhi-tools.expo.app](https://wenzhi-tools--hdqft35ppr.expo.app/)
+
+## ✨ Features
 
 ### CURL Helper
 Parse, modify, and simplify curl commands for local development:
