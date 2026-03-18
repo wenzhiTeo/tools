@@ -5,14 +5,14 @@
   <img src="demo-images/curl-helper.png" width="240" />
   <img src="demo-images/json-helper.png" width="240" />
   <img src="demo-images/jp-learn.png" width="240" />
-  <p><em>从左到右: Home, CURL Helper, JSON Helper, JP Learn</em></p>
+  <p><em>Home, CURL Helper, JSON Helper, JP Learn</em></p>
 </div>
 
 A collection of developer utility tools built with [Expo](https://expo.dev) and React Native. Works on Web, iOS, and Android.
 
 ## 🎯 Online Demo
 
-Try the live demo: [wenzhi-tools.expo.app](https://wenzhi-tools--hdqft35ppr.expo.app/)
+Try the live demo: [wenzhi-tools.expo.app](https://wenzhi-tools--m8wfyq4hz7.expo.app/)
 
 ## ✨ Features
 
@@ -41,7 +41,8 @@ Practice Hiragana and Katakana:
 
 ### Prerequisites
 - Node.js 18+
-- npm or yarn
+- npm (or yarn)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/) (`npx expo` is bundled with the project)
 
 ### Installation
 
@@ -51,23 +52,37 @@ npm install
 
 ### Development
 
-```bash
-# Start development server
-npx expo start
+Start the Expo development server:
 
-# Run on specific platform
+```bash
+npx expo start
+```
+
+Once the server is running, press the corresponding key in the terminal:
+
+| Key | Action |
+|-----|--------|
+| `w` | Open in **Web Browser** |
+| `i` | Open in **iOS Simulator** (macOS + Xcode required) |
+| `a` | Open in **Android Emulator** (Android Studio required) |
+
+> 📱 You can also scan the QR code with [Expo Go](https://expo.dev/go) on your phone to preview on a real device.
+
+Or launch a specific platform directly:
+
+```bash
 npx expo start --web
 npx expo start --ios
 npx expo start --android
 ```
 
-### Build for Production
+### Build & Deploy
 
 ```bash
-# Build web version
+# Export static web build
 npx expo export --platform web
 
-# Deploy to EAS
+# Deploy via EAS (Expo Application Services)
 npx eas deploy
 ```
 
