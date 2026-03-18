@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
-  View,
   Text,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
   useWindowDimensions,
+  View,
 } from "react-native";
 
 export interface ViewerSettingsValues {
@@ -17,11 +17,11 @@ export interface ViewerSettingsValues {
   groupArraysAfterLength: number;
 }
 
-const DEFAULT_SETTINGS: ViewerSettingsValues = {
+export const DEFAULT_SETTINGS: ViewerSettingsValues = {
   quotesOnKeys: true,
   sortKeys: false,
-  displayDataTypes: true,
-  displayObjectSize: true,
+  displayDataTypes: false,
+  displayObjectSize: false,
   indentWidth: 4,
   collapseStringsAfterLength: false,
   groupArraysAfterLength: 100,
@@ -35,7 +35,8 @@ export function ViewerSettings({ onChange }: Props) {
   const { width } = useWindowDimensions();
   const isSmall = width < 768;
 
-  const [settings, setSettings] = useState<ViewerSettingsValues>(DEFAULT_SETTINGS);
+  const [settings, setSettings] =
+    useState<ViewerSettingsValues>(DEFAULT_SETTINGS);
   const [draft, setDraft] = useState({
     indentWidth: "4",
     collapseStringsAfterLength: "",
@@ -62,11 +63,16 @@ export function ViewerSettings({ onChange }: Props) {
       collapseStr === "" ? false : parseInt(collapseStr, 10);
 
     const patch: Partial<ViewerSettingsValues> = {};
-    if (!isNaN(indentWidth) && indentWidth >= 0) patch.indentWidth = indentWidth;
-    if (!isNaN(groupArraysAfterLength) && groupArraysAfterLength >= 0) patch.groupArraysAfterLength = groupArraysAfterLength;
+    if (!isNaN(indentWidth) && indentWidth >= 0)
+      patch.indentWidth = indentWidth;
+    if (!isNaN(groupArraysAfterLength) && groupArraysAfterLength >= 0)
+      patch.groupArraysAfterLength = groupArraysAfterLength;
     if (collapseStringsAfterLength === false) {
       patch.collapseStringsAfterLength = false;
-    } else if (!isNaN(collapseStringsAfterLength) && collapseStringsAfterLength >= 0) {
+    } else if (
+      !isNaN(collapseStringsAfterLength) &&
+      collapseStringsAfterLength >= 0
+    ) {
       patch.collapseStringsAfterLength = collapseStringsAfterLength;
     }
     update(patch);
@@ -85,8 +91,16 @@ export function ViewerSettings({ onChange }: Props) {
     placeholder: string;
   }[] = [
     { key: "indentWidth", label: "Indent Width", placeholder: "4" },
-    { key: "collapseStringsAfterLength", label: "Collapse Strings After", placeholder: "-" },
-    { key: "groupArraysAfterLength", label: "Group Arrays After", placeholder: "100" },
+    {
+      key: "collapseStringsAfterLength",
+      label: "Collapse Strings After",
+      placeholder: "-",
+    },
+    {
+      key: "groupArraysAfterLength",
+      label: "Group Arrays After",
+      placeholder: "100",
+    },
   ];
 
   const fs = isSmall ? 12 : 13;
@@ -102,7 +116,14 @@ export function ViewerSettings({ onChange }: Props) {
           gap: 8,
         }}
       >
-        <Text style={{ fontSize: isSmall ? 14 : 16, fontWeight: "700", color: "#1e293b", letterSpacing: -0.2 }}>
+        <Text
+          style={{
+            fontSize: isSmall ? 14 : 16,
+            fontWeight: "700",
+            color: "#1e293b",
+            letterSpacing: -0.2,
+          }}
+        >
           {expanded ? "▾" : "▸"} Viewer Settings
         </Text>
       </TouchableOpacity>
@@ -168,7 +189,14 @@ export function ViewerSettings({ onChange }: Props) {
               backgroundColor: "#f8fafc",
             }}
           >
-            <Text style={{ fontSize: fs, color: "#64748b", marginBottom: isSmall ? 10 : 12, fontWeight: "600" }}>
+            <Text
+              style={{
+                fontSize: fs,
+                color: "#64748b",
+                marginBottom: isSmall ? 10 : 12,
+                fontWeight: "600",
+              }}
+            >
               Changes below take effect on Apply
             </Text>
             <View
@@ -184,9 +212,20 @@ export function ViewerSettings({ onChange }: Props) {
                 return (
                   <View
                     key={key}
-                    style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 10,
+                    }}
                   >
-                    <Text style={{ fontSize: fs, color: "#475569", minWidth: isSmall ? 140 : 160, fontWeight: "500" }}>
+                    <Text
+                      style={{
+                        fontSize: fs,
+                        color: "#475569",
+                        minWidth: isSmall ? 140 : 160,
+                        fontWeight: "500",
+                      }}
+                    >
                       {label}
                     </Text>
                     <TextInput

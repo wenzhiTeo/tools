@@ -19,9 +19,10 @@ import {
 
 import { GlobalStyles, GlobalWebStyles } from "@styles/global";
 import { OrderControl } from "@/components/json_helper/orderControl";
-import { ViewerSettings, ViewerSettingsValues } from "@/components/json_helper/viewerSettings";
+import { ViewerSettings, ViewerSettingsValues, DEFAULT_SETTINGS } from "@/components/json_helper/viewerSettings";
 import { SumControl } from "@/components/json_helper/sumControl";
 import { ExtractValues } from "@/components/json_helper/extractValues";
+import { SliceControl } from "@/components/json_helper/sliceControl";
 
 const LazyReactJsonView = lazy(() => import("react-json-view-custom"));
 
@@ -77,7 +78,7 @@ export default function JsonHelper() {
 
   const [availableKeys, setAvailableKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [viewerSettings, setViewerSettings] = useState<Partial<ViewerSettingsValues>>({});
+  const [viewerSettings, setViewerSettings] = useState<Partial<ViewerSettingsValues>>(DEFAULT_SETTINGS);
   const toggleKey = (key: string) => {
     setSelectedKeys((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
@@ -280,6 +281,13 @@ export default function JsonHelper() {
               secondExtractContent ? secondExtractContent : firstExtractContent
             }
             onOrdered={(newData) => setSecondExtractContent(newData)}
+          />
+
+          <SliceControl
+            data={
+              secondExtractContent ? secondExtractContent : firstExtractContent
+            }
+            onSliced={(newData) => setSecondExtractContent(newData)}
           />
 
           <SumControl
