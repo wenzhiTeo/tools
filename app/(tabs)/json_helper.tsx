@@ -41,13 +41,14 @@ type Props = {
   data: any;
   onToggleCollapsed?: (field: any) => boolean;
   viewerSettings?: Partial<ViewerSettingsValues>;
+  wrapperStyle?: React.CSSProperties;
 };
 
-export const JsonViewer = ({ data, viewerSettings, ...otherProps }: Props) => {
+export const JsonViewer = ({ data, viewerSettings, wrapperStyle, ...otherProps }: Props) => {
   if (Platform.OS === "web") {
     return (
       <Suspense fallback={<div>Loading JSON...</div>}>
-        <div style={webStyles.viewerWrapper}>
+        <div style={{ ...webStyles.viewerWrapper, ...wrapperStyle }}>
           <LazyReactJsonView
             src={data}
             collapsed={2}
@@ -297,12 +298,23 @@ export default function JsonHelper() {
             }
           />
 
-          <View style={styles.subPane}>
+          <View
+            style={[
+              styles.subPane,
+              {
+                ...((Platform.OS === "web" ? { resize: "vertical" } : {}) as any),
+                overflow: "auto",
+                height: 450,
+                minHeight: 200,
+              },
+            ]}
+          >
             <JsonViewer
               data={
                 secondExtractContent ? secondExtractContent : firstExtractContent
               }
               viewerSettings={viewerSettings}
+              wrapperStyle={{ maxHeight: "none", height: "100%" }}
             />
           </View>
         </div>
@@ -331,7 +343,7 @@ const styles = StyleSheet.create({
     boxSizing: "border-box" as const,
   },
   leftPane: {
-    ...((Platform.OS === "web" ? { resize: "horizontal" } : {}) as any),
+    ...((Platform.OS === "web" ? { resize: "both" } : {}) as any),
     minWidth: "30%",
     maxWidth: "70%",
     borderWidth: 0,
@@ -418,7 +430,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     padding: 18,
     borderRadius: 16,
-    minHeight: 130,
+    minHeight: 200,
     fontSize: 14,
     marginBottom: 16,
     backgroundColor: "#ffffff",
